@@ -138,6 +138,12 @@ body.dark{--bg:#0b1220;--panel:#111b2e;--text:#eef4ff;--muted:#aab7cd;--line:#27
 .sem-chips{display:flex;gap:7px;flex-wrap:wrap;align-items:center;min-height:26px}.sem-chip{cursor:pointer}.sem-chip:hover{filter:brightness(.94)}.sem-clear{padding:5px 10px!important}
 .sem-insight{background:linear-gradient(90deg,#eaf2ff,#f7faff);border-color:#c9dcf7;color:#183b66;font-size:12px;line-height:1.5}.dark .sem-insight{background:#12233d;border-color:#26446f;color:#d3e4ff}
 .sem-wrap{position:relative;width:100%}.sem-scroll{overflow-x:auto;overflow-y:hidden;padding-bottom:6px;scrollbar-width:thin}.sem-inner{position:relative;min-width:100%}.sem-inner canvas,.sem-wrap canvas{display:block}
+.sem-chart-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:5px 9px;margin:6px auto 0;padding:0 4px;max-height:88px;overflow-y:auto}
+.sem-chart-legend button{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:5px 8px;border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--text);font-size:11px;font-weight:650;line-height:1.25;white-space:normal;text-align:left;cursor:pointer}
+.sem-chart-legend button:hover{border-color:var(--blue);background:#1769e00d}.sem-chart-legend button[aria-pressed="false"]{opacity:.5;text-decoration:line-through}
+.sem-legend-mark{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:var(--legend-color)}
+.sem-chart-area{position:relative;width:100%}.sem-chart-area canvas{display:block}
+#forecastInner,#coletaInner,#wxChartInner,.window-chart-inner,.janela-forecast-inner,.sem-scroll .sem-inner{width:100%!important;min-width:0!important}
 .sem-card.on{outline:2px solid var(--blue);outline-offset:-2px}.sem-card[onclick]{cursor:pointer}
 .sem-tbl-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
 .sem-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px}.sem-table th{position:sticky;top:0;z-index:1;background:#0b4387;color:#fff;padding:8px 9px;text-align:right;white-space:nowrap;font-weight:800}.sem-table th:first-child,.sem-table td:first-child{text-align:left}
@@ -263,7 +269,7 @@ function perfRows(key){let m={};filtered.forEach(r=>{let k=norm(r[key])||'Sem in
 function renderPerfChart(id,key){let m=perfRows(key),e=Object.entries(m).map(([k,x])=>[k,x.np+x.fp?100*x.np/(x.np+x.fp):0]).sort((a,b)=>b[1]-a[1]).slice(0,15),el=$('#'+id);charts[id]=new Chart(el,{type:'bar',data:{labels:e.map(x=>x[0]),datasets:[{label:'OTD entrega final',data:e.map(x=>x[1]),backgroundColor:'#0b2b59',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:true,position:'bottom'}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{display:false}},y:{grid:{display:false}}},onClick:(ev,els)=>{if(els.length)setCross(key,e[els[0].index][0])}}})}
 function monthKey(v){let m=norm(v).match(/^(\d{2})\/(\d{4})$/);return m?(+m[2]*12+(+m[1]-1)):999999}
 function chartMonth(id,filterFn=()=>true,forcedColor=''){let m={};filtered.filter(filterFn).forEach(r=>{let k=norm(r.__mes)||'Sem data';m[k]=(m[k]||0)+1});let e=Object.entries(m).sort((a,b)=>monthKey(a[0])-monthKey(b[0])).map(([k,v])=>{let x=k.match(/^(\d{2})\/(\d{4})$/);return [x?['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][+x[1]-1]+'/'+x[2].slice(-2):k,v]});draw(id,'__mes',e,'bar',false,false,forcedColor)}
-function chartCityScrollable(id){let m={};filtered.forEach(r=>{let k=norm(r.Cidade)||'Sem informação';m[k]=(m[k]||0)+1});let entries=Object.entries(m).sort((a,b)=>b[1]-a[1]),el=$('#'+id);if(!el)return;let wrap=el.parentElement,h=Math.max(520,entries.length*30),w=Math.max(620,wrap.clientWidth-16);el.width=w;el.height=h;el.style.width='100%';el.style.height=h+'px';charts[id]=new Chart(el,{type:'bar',plugins:[barValueLabels],data:{labels:entries.map(x=>x[0]),datasets:[{label:'Quantidade',data:entries.map(x=>x[1]),backgroundColor:'#0b2b59',borderRadius:6}]},options:{responsive:false,animation:false,indexAxis:'y',layout:{padding:{right:38}},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{display:false}},y:{grid:{display:false},ticks:{font:{size:10}}}},onClick:(ev,els)=>{if(els.length)setCross('Cidade',entries[els[0].index][0])}}})}
+function chartCityScrollable(id){let m={};filtered.forEach(r=>{let k=norm(r.Cidade)||'Sem informação';m[k]=(m[k]||0)+1});let entries=Object.entries(m).sort((a,b)=>b[1]-a[1]),el=$('#'+id);if(!el)return;let wrap=el.parentElement,h=Math.max(520,entries.length*30),w=Math.max(1,wrap.clientWidth-16);el.width=w;el.height=h;el.style.width='100%';el.style.height=h+'px';charts[id]=new Chart(el,{type:'bar',plugins:[barValueLabels],data:{labels:entries.map(x=>x[0]),datasets:[{label:'Quantidade',data:entries.map(x=>x[1]),backgroundColor:'#0b2b59',borderRadius:6}]},options:{responsive:false,animation:false,indexAxis:'y',layout:{padding:{right:38}},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{display:false}},y:{grid:{display:false},ticks:{font:{size:10}}}},onClick:(ev,els)=>{if(els.length)setCross('Cidade',entries[els[0].index][0])}}})}
 
 function agingAFCategory(r){let st=norm(r['Status por NF']),af=norm(r['Aging em Aberto']);if(/Finalizado/i.test(st))return 'FINALIZADO';if(/Extravio/i.test(st))return 'EXTRAVIO';if(pending(r)){if(/1\s*-\s*4/i.test(af))return '1 a 5 dias';if(/5\s*-\s*10/i.test(af))return '6 a 10 dias';if(/11\s*-\s*15/i.test(af))return '11 a 15 dias';if(/16\s*-\s*20/i.test(af))return '16 a 20 dias';if(/21\s*-\s*30/i.test(af))return '21 a 30 dias';if(/31\s*-\s*40/i.test(af))return '31 a 40 dias';if(/41\s*-\s*50/i.test(af))return '41 a 50 dias';if(/51\s*-\s*60/i.test(af))return '51 a 60 dias';if(/Acima\s*60/i.test(af))return 'Acima de 60 dias';let days=pendingColetaAge(r);return pendingColetaBucket(days)}return ''}
 function renderAgingChart(id,filterFn=()=>true){let labels=['FINALIZADO','EXTRAVIO','1 a 5 dias','6 a 10 dias','11 a 15 dias','16 a 20 dias','21 a 30 dias','31 a 40 dias','41 a 50 dias','51 a 60 dias','Acima de 60 dias'],m=Object.fromEntries(labels.map(x=>[x,0])),rows=[];filtered.filter(filterFn).forEach(r=>{let cat=agingAFCategory(r);if(cat&&m[cat]!==undefined){m[cat]++;rows.push({row:r,cat})}});let shown=labels.filter(x=>m[x]>0),vals=shown.map(x=>m[x]),colors=shown.map(x=>x==='FINALIZADO'?'#20b26b':x==='EXTRAVIO'?'#f59e0b':x==='1 a 5 dias'?'#172aa7':x==='6 a 10 dias'?'#2495e8':'#7c3aed'),el=$('#'+id);if(!el)return;charts[id]=new Chart(el,{type:'bar',plugins:[barValueLabels],data:{labels:shown,datasets:[{label:'Processos',data:vals,backgroundColor:colors,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${fmt(c.raw)} processos`}}},scales:{x:{beginAtZero:true,grid:{display:false}},y:{grid:{display:false}}},onClick:(e,els)=>{if(els.length){let cat=shown[els[0].index],subset=new Set(rows.filter(x=>x.cat===cat).map(x=>x.row));fullFiltered=fullFiltered.filter(r=>subset.has(r));filtered=fullFiltered.filter(operational);render()}}}});setPanelSubtitle(id,'Finalizados, extravios e pendências por faixas operacionais da coluna AF • clique para filtrar')}
@@ -506,6 +512,7 @@ function openDetails(r){$('#details').innerHTML=Object.entries(r).filter(([k])=>
 function exportCSV(onlyPending=false){let source=fullFiltered.length?fullFiltered:filtered,d=onlyPending?source.filter(pending):source,exportRows=fullAccess?d:d.map(r=>Object.fromEntries(Object.entries(r).filter(([k])=>!/Transportadora/i.test(k)))),csv=Papa.unparse(exportRows,{delimiter:';'}),blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a'),now=new Date(),stamp=now.toISOString().slice(0,16).replace('T','_').replace(':','');a.href=URL.createObjectURL(blob);a.download=`reversa_gm_${onlyPending?'pendencias':'filtrado'}_${stamp}.csv`;a.click();URL.revokeObjectURL(a.href)}
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function js(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
+window.addEventListener('resize',debounce(()=>requestAnimationFrame(()=>Object.values(charts).forEach(c=>{if(c.options.responsive&&c.canvas.clientWidth&&c.width!==c.canvas.parentElement.clientWidth)c.resize()})),120));
 /* ===================== ACOMPANHAMENTO SEMANAL (Previsão de Coleta x Coletado x CTE) ===================== */
 let sem={week:'cur',metric:'vol',weeks:12,flt:null,day:null,carrier:null,region:null,uf:null,dealer:null,age:null,grp:'region',q:'',n:50,pg:1,_detail:[]};
 const SEM_ST=[['colNP','Coletado no prazo','#20b26b'],['colFP','Coletado fora do prazo','#f59e0b'],['venc','Pendente vencida','#ef3340'],['aven','Pendente a vencer','#1769e0']];
@@ -595,18 +602,36 @@ function semHover(e,els){if(e&&e.native&&e.native.target)e.native.target.style.c
 /* ---------- plugins de gráfico ---------- */
 const semLabels={id:'semLabels',afterDatasetsDraw(chart){
  let ctx=chart.ctx,horiz=chart.options.indexAxis==='y',placed=[];
- ctx.save();ctx.font='700 10px Segoe UI,Arial';ctx.fillStyle=semText();
+ ctx.save();
  chart.data.datasets.forEach((ds,i)=>{
-  if(!ds.showVal&&!ds.showPct&&!ds.texts)return;
+  if(!ds.showVal&&!ds.showPct&&!ds.texts&&!ds.segmentLabel&&!ds.segmentValue)return;
   let meta=chart.getDatasetMeta(i);if(meta.hidden)return;
   meta.data.forEach((el,j)=>{
    let v=ds.data[j];if(v==null||(!ds.texts&&!v))return;
    let t=ds.texts?ds.texts[j]:ds.showPct?pc(v):fmt(Math.round(v));if(t==null||t==='')return;
-   let width=ctx.measureText(t).width,x=horiz?el.x+5:el.x-width/2,y=horiz?el.y:el.y-5,
-    box={left:x-2,right:x+width+2,top:y-7,bottom:y+7};
+   ctx.font=ds.segmentValue?'700 9px Segoe UI,Arial':'700 10px Segoe UI,Arial';
+   if(ds.segmentValue){
+    if(v<=0||el.height<9)return;
+    t=fmt(Math.round(v));
+   }
+   if(ds.segmentLabel){
+    if(v<=0||el.height<9)return;
+    let value=fmt(Math.round(v));
+    t=el.height>=22?`${ds.segmentLabel} ${value}`:value;
+   }
+   let width=ctx.measureText(t).width,stacked=!!ds.stack;
+   if(ds.segmentLabel&&el.width<width+6){
+    t=fmt(Math.round(v));width=ctx.measureText(t).width;
+   }
+   if(stacked&&!ds.segmentLabel&&(el.height<16||el.width<width+8))return;
+   if((ds.segmentLabel||ds.segmentValue)&&el.width<width+4)return;
+   let x=horiz?el.x+5:el.x-width/2,y=horiz?el.y:stacked?el.y:el.y-5;
+   ctx.fillStyle=(Array.isArray(ds.labelColor)?ds.labelColor[j]:ds.labelColor)||semText();
+   ctx.textAlign=horiz?'left':'center';
+   let box={left:x-2,right:x+width+2,top:y-7,bottom:y+7};
    if(box.left<0||box.right>chart.width||box.top<chart.chartArea.top-18||box.bottom>chart.chartArea.bottom)return;
    if(placed.some(p=>box.left<p.right+2&&box.right>p.left-2&&box.top<p.bottom+2&&box.bottom>p.top-2))return;
-   placed.push(box);ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(t,x,y)
+   placed.push(box);ctx.textBaseline='middle';ctx.fillText(t,x,y)
   })});
  ctx.restore()}};
 const semCenter={id:'semCenter',afterDraw(chart){
@@ -618,9 +643,10 @@ const semCenter={id:'semCenter',afterDraw(chart){
 
 /* ---------- layout ---------- */
 function semPanel(id,title,sub,span,o={}){
+ let legend=`<div class="sem-chart-legend" id="${id}Legend" aria-label="Legenda do gráfico"></div>`;
  return `<div class="panel span-${span}"><div class="panel-head"><div><h3>${title}</h3><small class="panel-subtitle">${sub||''}</small></div>${o.head||''}</div>`+
- (o.scroll?`<div class="sem-scroll"><div class="sem-inner" id="${id}Inner" style="height:${o.h||340}px"><canvas id="${id}"></canvas></div></div>`
-          :`<div class="sem-wrap" id="${id}Wrap" style="height:${o.h||260}px"><canvas id="${id}"></canvas></div>`)+`</div>`
+ (o.scroll?`<div class="sem-scroll"><div class="sem-inner" id="${id}Inner"><div class="sem-chart-area" id="${id}ChartArea" style="height:${o.h||340}px"><canvas id="${id}"></canvas></div>${legend}</div></div>`
+          :`<div class="sem-wrap" id="${id}Wrap"><div class="sem-chart-area" id="${id}ChartArea" style="height:${o.h||260}px"><canvas id="${id}"></canvas></div>${legend}</div>`)+`</div>`
 }
 function semCard(label,val,sub,color,flt,icon){
  let on=flt&&sem.flt===flt;
@@ -683,32 +709,33 @@ function renderSemPage(g){
  let wToggle='';
  g.innerHTML=semToolbar()+
  semInsightsPanel()+
- semPanel('semWeekly','📊 Previsto × Coletado × CTE por semana','Barras: previsto e coletado • linha roxa: NFs/volumes com CTE • linha laranja: % coletado • clique numa semana para selecioná-la',8,{scroll:true,h:340})+
- semPanel('semStatus','🎯 Situação da coleta','Clique numa fatia para filtrar',4,{h:340})+
- semPanel('semDaily',sem.day||semWeek()!=='all'?'📅 Dia a dia da semana (por previsão)':'📅 Perfil por dia da semana','Previsto × coletado × CTE por data de previsão • clique num dia para filtrar',8,{h:300})+
- semPanel('semFunnel','🔻 Funil: previsto → coletado → CTE','Clique numa barra para filtrar',4,{h:300})+
+ semPanel('semWeekly','📊 Previsto × Coletado × CTE por semana','Barras: previsto e coletado • linha roxa: NFs/volumes com CTE • linha laranja: % coletado • clique numa semana para selecioná-la',8,{scroll:true,h:290})+
+ semPanel('semStatus','🎯 Situação da coleta','Clique numa fatia para filtrar',4,{h:290})+
+ semPanel('semStatusWeekly','📊 Status da planilha semana a semana','Somente os valores numéricos dentro de cada segmento • passe o mouse para identificar o status e ver a variação semanal • sem meta',12,{scroll:true,h:440})+
+ semPanel('semDaily',sem.day||semWeek()!=='all'?'📅 Dia a dia da semana (por previsão)':'📅 Perfil por dia da semana','Previsto × coletado × CTE por data de previsão • clique num dia para filtrar',8,{h:260})+
+ semPanel('semFunnel','🔻 Funil: previsto → coletado → CTE','Clique numa barra para filtrar',4,{h:260})+
  semComparePanel()+semProjPanel()+
- (fullAccess?semPanel('semCarrier','🚚 Por transportadora','Situação da coleta • clique para filtrar',6,{h:340}):'')+
- semPanel('semRegion','📍 Por região','Situação da coleta • clique para filtrar',fullAccess?6:4,{h:340})+
- semPanel('semUF','🗺️ Por UF (top 15)','Situação da coleta • clique para filtrar',fullAccess?6:8,{h:430})+
- semPanel('semDealer','🏢 Concessionárias com coleta pendente (top 12)','Volumes/NFs ainda não coletados • clique para filtrar',6,{h:430})+
- semPanel('semAging','⏳ Vencidas sem coleta por dias úteis de atraso','Dias úteis desde a previsão • clique numa faixa',6,{h:430})+
- (fullAccess?semPanel('semCarrierPending','🚚 Pendências de coleta por transportadora','Vencidas × a vencer • clique na transportadora para filtrar',6,{h:430}):'')+
+ (fullAccess?semPanel('semCarrier','🚚 Por transportadora','Situação da coleta • clique para filtrar',6,{h:300}):'')+
+ semPanel('semRegion','📍 Por região','Situação da coleta • clique para filtrar',fullAccess?6:4,{h:300})+
+ semPanel('semUF','🗺️ Por UF (top 15)','Situação da coleta • clique para filtrar',fullAccess?6:8,{h:360})+
+ semPanel('semDealer','🏢 Concessionárias com coleta pendente (top 12)','Volumes/NFs ainda não coletados • clique para filtrar',6,{h:360})+
+ semPanel('semAging','⏳ Vencidas sem coleta por dias úteis de atraso','Dias úteis desde a previsão • clique numa faixa',6,{h:340})+
+ (fullAccess?semPanel('semCarrierPending','🚚 Pendências de coleta por transportadora','Vencidas × a vencer • clique na transportadora para filtrar',6,{h:340}):'')+
  semHeatPanel()+semDealerRankPanel()+
- semPanel('semCteCov','🧾 Cobertura de CTE nas NFs coletadas, por semana','Coletadas com CTE × sem CTE • linha: % com CTE • clique numa semana',6,{scroll:true,h:320})+
- semPanel('semProd','🏭 Produção por data efetiva','Previsto (por previsão) × coletado (por data da coleta) × CTE emitido (por data de emissão)',6,{scroll:true,h:320})+
- semPanel('semOtpWeek','⏱️ OTP de coleta por semana','% coletado no prazo (data da coleta ≤ previsão) • linha tracejada = meta 95% • clique numa semana',6,{scroll:true,h:300})+
- semPanel('semOtpDim','🏁 OTP de coleta por '+(SEM_DIM[sem.grp]||SEM_DIM.region).l.toLowerCase(),'Troque o agrupamento em "Resumo por grupo" • clique para filtrar',6,{h:340})+
- semPanel('semCteLead','🧾 Tempo entre coleta e emissão do CTE','NFs coletadas por faixa de dias entre a coleta e o CTE • clique em "Sem CTE" para filtrar',6,{h:340})+
- semPanel('semBurn','📈 Acumulado da semana','Previsto × coletado × CTE acumulados por dia de previsão (selecione uma semana)',6,{h:300})+
- semPanel('semVolDist','📦 NFs por tamanho (volumes por NF)','Quantidade de NFs e participação nos volumes',6,{h:300})+
- semPanel('semCteBySize','🧾 CTEs emitidos por tamanho da NF','Volumes/NFs com CTE × sem CTE em cada faixa de volumes por NF',6,{h:300})+
+ semPanel('semCteCov','🧾 Cobertura de CTE nas NFs coletadas, por semana','Coletadas com CTE × sem CTE • linha: % com CTE • clique numa semana',6,{scroll:true,h:300})+
+ semPanel('semProd','🏭 Produção por data efetiva','Previsto (por previsão) × coletado (por data da coleta) × CTE emitido (por data de emissão)',6,{scroll:true,h:300})+
+ semPanel('semOtpWeek','⏱️ OTP de coleta por semana','% coletado no prazo (data da coleta ≤ previsão) • linha tracejada = meta 95% • clique numa semana',6,{scroll:true,h:280})+
+ semPanel('semOtpDim','🏁 OTP de coleta por '+(SEM_DIM[sem.grp]||SEM_DIM.region).l.toLowerCase(),'Troque o agrupamento em "Resumo por grupo" • clique para filtrar',6,{h:300})+
+ semPanel('semCteLead','🧾 Tempo entre coleta e emissão do CTE','NFs coletadas por faixa de dias entre a coleta e o CTE • clique em "Sem CTE" para filtrar',6,{h:300})+
+ semPanel('semBurn','📈 Acumulado da semana','Previsto × coletado × CTE acumulados por dia de previsão (selecione uma semana)',6,{h:260})+
+ semPanel('semVolDist','📦 NFs por tamanho (volumes por NF)','Quantidade de NFs e participação nos volumes',6,{h:260})+
+ semPanel('semCteBySize','🧾 CTEs emitidos por tamanho da NF','Volumes/NFs com CTE × sem CTE em cada faixa de volumes por NF',6,{h:260})+
  `<div class="panel span-12"><div class="panel-head"><div><h3>📋 Resumo por grupo</h3><small class="panel-subtitle">Clique numa linha para filtrar</small></div><div class="sem-ctrls"><label class="hint">Agrupar por</label><select onchange="semSetGrp(this.value)">${grpOpts}</select></div></div><div class="sem-tbl-wrap" style="max-height:340px">${semGroupTable()}</div></div>`+
  `<div class="panel span-12"><div class="panel-head"><div><h3>🗓️ Resumo semanal</h3><small class="panel-subtitle">Todas as semanas • clique numa linha para selecionar a semana</small></div></div><div class="sem-tbl-wrap" style="max-height:380px">${semWeeklyTable()}</div></div>`+
  `<div class="panel span-12"><div class="panel-head"><div><h3>🔎 NFs da seleção</h3><small class="panel-subtitle">Detalhe das NFs conforme os filtros acima • clique numa linha para abrir os detalhes</small></div>
    <div class="sem-ctrls"><input id="semQ" placeholder="Pesquisar NF, autorização, cidade, concessionária..." value="${esc(sem.q)}" oninput="sem.q=this.value;sem.pg=1;semRenderDetail()"><select onchange="sem.n=+this.value;sem.pg=1;semRenderDetail()">${[25,50,100,200].map(n=>`<option ${sem.n===n?'selected':''}>${n}</option>`).join('')}</select><button class="btn" onclick="semExport()">⬇ Exportar seleção</button></div></div><div id="semDetail"></div></div>`;
  requestAnimationFrame(()=>{
-  semDrawWeekly();semDrawStatus();semDrawDaily();semDrawFunnel();
+  semDrawWeekly();semDrawStatusWeekly();semDrawStatus();semDrawDaily();semDrawFunnel();
   if(fullAccess)semStack('semCarrier','carrier',x=>x.car,15);
   semStack('semRegion','region',x=>x.reg,15);
   semStack('semUF','uf',x=>x.uf,15);
@@ -721,11 +748,92 @@ function renderSemPage(g){
 }
 
 /* ---------- gráficos ---------- */
-function semLegend(m){return {position:'bottom',labels:{color:m,boxWidth:10,usePointStyle:true,padding:10,font:{size:9}}}}
+function semLegend(){return {display:false}}
+const semHtmlLegend={id:'semHtmlLegend',afterUpdate(chart){
+ let box=document.getElementById(`${chart.canvas.id}Legend`);if(!box)return;
+ let doughnut=['doughnut','pie','polarArea'].includes(chart.config.type),items=[];
+ const colorAtMaxOpacity=value=>{
+  if(!Array.isArray(value))return value;
+  return value.reduce((best,color)=>{
+   let opacity=Number(String(color).match(/,\s*([\d.]+)\s*\)$/)?.[1]||1);
+   let bestOpacity=Number(String(best).match(/,\s*([\d.]+)\s*\)$/)?.[1]||1);
+   return opacity>bestOpacity?color:best;
+  },value[0]);
+ };
+ if(doughnut){
+  let dataset=chart.data.datasets[0]||{};
+  items=(chart.data.labels||[]).map((label,index)=>({
+   label,color:Array.isArray(dataset.backgroundColor)?dataset.backgroundColor[index]:dataset.backgroundColor,
+   hidden:!chart.getDataVisibility(index),index,
+  }));
+ }else{
+  items=chart.data.datasets.map((dataset,index)=>({
+   label:dataset.label||`Série ${index+1}`,
+   color:colorAtMaxOpacity(dataset.borderColor||dataset.backgroundColor)||'#8291a8',
+   hidden:!chart.isDatasetVisible(index),index,
+  }));
+ }
+ box.replaceChildren(...items.filter(item=>item.label).map(item=>{
+  let button=document.createElement('button'),mark=document.createElement('span');
+  button.type='button';button.setAttribute('aria-pressed',String(!item.hidden));button.title=`Mostrar/ocultar ${item.label}`;
+  mark.className='sem-legend-mark';mark.style.setProperty('--legend-color',item.color||'#8291a8');
+  button.append(mark,document.createTextNode(item.label));
+  button.addEventListener('click',()=>{
+   if(doughnut)chart.toggleDataVisibility(item.index);
+   else chart.setDatasetVisibility(item.index,!chart.isDatasetVisible(item.index));
+   chart.update();
+  });
+  return button;
+ }));
+}};
+Chart.register(semHtmlLegend);
 function semUnit(){return sem.metric==='vol'?'Volumes':'NFs'}
 function semWeeklySeries(R){
  let g=semGroup(R,x=>x.w),ws=[...g.keys()].sort(),show=sem.weeks==='all'?ws:ws.slice(-sem.weeks);
  return show.map(w=>({w,s:semStats(g.get(w))}))
+}
+function semDrawStatusWeekly(){
+ let el=$('#semStatusWeekly'),inner=$('#semStatusWeeklyInner');if(!el)return;
+ let R=semRows({week:1,day:1,flt:1}),weeks=semWeeklySeries(R).map(x=>x.w),sel=semWeek(),m=semMuted();
+ if(!weeks.length){inner.innerHTML='<div class="empty">Sem previsões de coleta no filtro atual.</div>';return}
+ let totals=new Map(),statusSet=new Set();
+ R.forEach(x=>{
+  let status=norm(x.r['Status por NF'])||'Sem status';
+  statusSet.add(status);
+  let byStatus=totals.get(x.w);
+  if(!byStatus){byStatus=new Map();totals.set(x.w,byStatus)}
+  byStatus.set(status,(byStatus.get(status)||0)+(sem.metric==='vol'?x.v:1));
+ });
+ let colors={'1-Pendente Coleta':'#f59e0b','2-Pendente Envio ao XD':'#12b8c8','3-Pendente Envio ao Cliente':'#1769e0','Finalizado':'#20b26b','Extravio':'#ef3340'};
+ let statuses=[...statusSet].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}));
+ let alpha=w=>sel==='all'||sel===w?1:.35;
+ inner.style.width=inner.parentElement.clientWidth+'px';
+ charts.semStatusWeekly=new Chart(el,{type:'bar',plugins:[semLabels],data:{labels:weeks.map(semWeekShort),datasets:statuses.map((status,i)=>({
+  label:status,data:weeks.map(w=>(totals.get(w)||new Map()).get(status)||0),
+  backgroundColor:weeks.map(w=>semA(colors[status]||['#7c3aed','#8291a8','#ef7a2f','#1769e0'][i%4],alpha(w))),
+  borderRadius:3,stack:'status',segmentValue:true,
+  labelColor:weeks.map(w=>sel==='all'||w===sel?'#fff':semText())
+ }))},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:8}},onHover:semHover,interaction:{mode:'index',intersect:false},
+  plugins:{legend:semLegend(m),tooltip:{callbacks:{
+   title:items=>'Semana '+semWeekLabel(weeks[items[0].dataIndex]),
+   label:c=>{
+    let value=c.parsed.y||0;
+    if(c.dataIndex===0)return ` ${c.dataset.label}: ${fmt(Math.round(value))} ${semUnit().toLowerCase()} (sem semana anterior)`;
+    let previous=(totals.get(weeks[c.dataIndex-1])||new Map()).get(c.dataset.label)||0,change=value-previous;
+    let percent=previous?` (${change>0?'+':''}${(change*100/previous).toFixed(1).replace('.',',')}%)`:' (sem base anterior para percentual)';
+    return ` ${c.dataset.label}: ${fmt(Math.round(value))} ${semUnit().toLowerCase()} (${change>0?'+':''}${fmt(Math.round(change))}${percent} vs semana anterior)`;
+   },
+   afterBody:items=>{
+    let i=items[0].dataIndex,w=weeks[i],current=totals.get(w)||new Map(),total=[...current.values()].reduce((a,v)=>a+v,0);
+    if(i===0)return [`Total: ${fmt(total)} ${semUnit().toLowerCase()}`,'Sem semana anterior na série.'];
+    let previous=totals.get(weeks[i-1])||new Map(),previousTotal=[...previous.values()].reduce((a,v)=>a+v,0),change=total-previousTotal;
+    let percent=previousTotal?` (${change>0?'+':''}${(change*100/previousTotal).toFixed(1).replace('.',',')}%)`:' (sem base anterior para percentual)';
+    return [`Total: ${fmt(total)} ${semUnit().toLowerCase()}`,`Variação vs ${semWeekLabel(weeks[i-1])}: ${change>0?'+':''}${fmt(change)}${percent}`,'Clique para selecionar a semana'];
+   },
+  }}},
+  scales:{x:{stacked:true,grid:{display:false},ticks:{color:m,autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,beginAtZero:true,title:{display:true,text:semUnit(),color:m},ticks:{color:m},grid:{color:'#dbe5f155'}}},
+  onClick:(e,els)=>{if(els.length){let w=weeks[els[0].index];semSetWeek(sel===w?'all':w)}}
+ }});
 }
 function semDrawWeekly(){
  let el=$('#semWeekly'),inner=$('#semWeeklyInner');if(!el)return;
@@ -753,7 +861,7 @@ function semDrawStatus(){
  if(!sum){$('#semStatusWrap').innerHTML='<div class="empty">Sem dados no filtro atual.</div>';return}
  charts.semStatus=new Chart(el,{type:'doughnut',plugins:[semCenter],data:{labels:SEM_ST.map(([k,l])=>`${l} • ${fmt(Math.round(tot[k]))} (${pc(100*tot[k]/sum)})`),
   datasets:[{data:SEM_ST.map(([k])=>tot[k]),backgroundColor:SEM_ST.map(([k,l,c])=>semA(c,dim&&sem.flt!==k?.3:1)),borderWidth:2,borderColor:semPanelBg(),center:[pc(100*done/sum),'coletado • '+semUnit().toLowerCase()]}]},
-  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',onHover:semHover,plugins:{legend:{position:'bottom',labels:{color:m,boxWidth:10,usePointStyle:true,font:{size:10}}},tooltip:{callbacks:{label:c=>` ${fmt(Math.round(c.parsed))} ${semUnit().toLowerCase()} • ${pc(100*c.parsed/sum)}`}}},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',onHover:semHover,plugins:{legend:semLegend(),tooltip:{callbacks:{label:c=>` ${fmt(Math.round(c.parsed))} ${semUnit().toLowerCase()} • ${pc(100*c.parsed/sum)}`}}},
    onClick:(e,els)=>{if(els.length)semSetFlt(SEM_ST[els[0].index][0])}}})
 }
 function semDrawDaily(){
@@ -796,7 +904,7 @@ function semStack(id,dim,keyFn,limit,pre,states){
  let m=new Map();R.forEach(x=>{let k=keyFn(x),o=m.get(k);if(!o){o={k,tot:0,colNP:0,colFP:0,venc:0,aven:0};m.set(k,o)}o[semState(x)]+=mv(x);o.tot+=mv(x)});
  let e=[...m.values()].sort((a,b)=>b.tot-a.tot).slice(0,limit),mu=semMuted();
  if(!e.length){$('#'+id+'Wrap').innerHTML='<div class="empty">Sem dados no filtro atual.</div>';return}
- $('#'+id+'Wrap').style.height=Math.max(220,e.length*28+70)+'px';
+ $('#'+id+'ChartArea').style.height=Math.max(220,e.length*28+70)+'px';
  let al=o=>sem[dim]&&sem[dim]!==o.k?.35:1;
  let ds=states.map(([k,l,c],i)=>({label:l,data:e.map(o=>o[k]),backgroundColor:e.map(o=>semA(c,al(o))),borderRadius:3,stack:'s',texts:i===states.length-1?e.map(o=>fmt(Math.round(o.tot))):undefined}));
  charts[id]=new Chart(el,{type:'bar',plugins:[semLabels],data:{labels:e.map(o=>o.k),datasets:ds},
@@ -871,7 +979,7 @@ function semDrawOtpDim(){
  let dim=SEM_DIM[sem.grp]?sem.grp:'region',d=SEM_DIM[dim],R=semRows({[dim]:1}).filter(x=>x.a),m=semMuted();
  let e=[...semGroup(R,d.k).entries()].map(([k,a])=>{let s=semStats(a);return {k,s,otp:100*s.np/(s.np+s.fp||1),n:s.nfc}}).filter(o=>o.n>0).sort((a,b)=>b.n-a.n).slice(0,15).sort((a,b)=>a.otp-b.otp);
  if(!e.length){$('#semOtpDimWrap').innerHTML='<div class="empty">Sem coletas realizadas no filtro atual.</div>';return}
- $('#semOtpDimWrap').style.height=Math.max(220,e.length*28+60)+'px';
+ $('#semOtpDimChartArea').style.height=Math.max(220,e.length*28+60)+'px';
  charts.semOtpDim=new Chart(el,{type:'bar',plugins:[semLabels],data:{labels:e.map(o=>o.k),datasets:[{label:'OTP coleta',data:e.map(o=>o.otp),backgroundColor:e.map(o=>semA(semMeta(o.otp),sem[dim]&&sem[dim]!==o.k?.35:1)),borderRadius:5,showPct:true}]},
   options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:46}},onHover:semHover,plugins:{legend:semLegend(m),tooltip:{callbacks:{title:i=>e[i[0].dataIndex].k,label:c=>` OTP: ${pc(c.parsed.x)}`,afterBody:i=>{let s=e[i[0].dataIndex].s;return [`No prazo: ${fmt(s.np)} • fora: ${fmt(s.fp)} (${fmt(s.nfc)} NFs coletadas)`]}}}},
    scales:{x:{min:0,max:110,ticks:{color:m,callback:v=>v+'%'},grid:{color:'#dbe5f155'}},y:{grid:{display:false},ticks:{color:m,font:{size:10},autoSkip:false}}},
@@ -925,7 +1033,7 @@ function semDrawCarrierStack(id,stateFn,states){
  });
  let entries=[...m.values()].sort((a,b)=>b.total-a.total).slice(0,12);
  if(!entries.length){$(`#${id}Wrap`).innerHTML='<div class="empty">Sem dados de coleta por transportadora na seleção.</div>';return}
- $(`#${id}Wrap`).style.height=Math.max(260,entries.length*28+115)+'px';
+ $(`#${id}ChartArea`).style.height=Math.max(260,entries.length*28+115)+'px';
  let datasets=states.map(([key,label,color],index)=>({
   label,data:entries.map(x=>x.values[key]),
   backgroundColor:entries.map(x=>semA(color,sem.carrier&&sem.carrier!==x.k ? .35 : 1)),
