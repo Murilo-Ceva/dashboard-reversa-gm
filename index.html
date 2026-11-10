@@ -1210,7 +1210,7 @@ function semWeeklyTable(){
 }
 const WEEKLY_CREATION_SNAPSHOT_KEY='gm-weekly-creation-snapshot-v1';
 const WEEKLY_CREATION_METRICS=[
- ['collectedNfs','NFs coletadas','number'],['cancelledNfs','NFs canceladas','number'],
+ ['collectedNfs','NFs coletadas','number'],['pendingNfs','NFs pendentes','number'],['cancelledNfs','NFs canceladas','number'],['totalNfs','Total geral','number'],
  ['vp','Vol. previsto','number'],['vc','Vol. coletado','number'],
  ['collectedPct','% coletado','percent'],['vpend','Vol. pendente','number'],
  ['vencNF','NFs vencidas','number'],['otp','OTP coleta','percent'],
@@ -1253,12 +1253,16 @@ function semCreationScope(){
  return JSON.stringify({filters,cross:Object.entries(cross).sort(([a],[b])=>a.localeCompare(b)),search:norm($('#search').value),range:chartDateRange?{field:chartDateRange.field,start:dateISO(chartDateRange.start),end:dateISO(chartDateRange.end)}:null});
 }
 function semCreationStats(rows){
- let eligible=rows.filter(row=>parseDate(row['Previsão Coleta'])&&numBR(row.Volume)>0
+ let valid=rows.filter(row=>parseDate(row['Data de Criação'])&&norm(row.NF));
+ let eligible=valid.filter(row=>parseDate(row['Previsão Coleta'])&&numBR(row.Volume)>0
   &&!/cancel|extravio/i.test(`${norm(row['Status por NF'])} ${norm(row['CANCELADO/EXTRAVIO'])}`));
  let s=semStats(eligible.map(sx).filter(Boolean));
- let cancelled=rows.filter(row=>isCanceled(row)&&norm(row.NF)).length;
- return {collectedNfs:s.nfc,cancelledNfs:cancelled,vp:s.vp,vc:s.vc,collectedPct:s.vp?100*s.vc/s.vp:0,
-  vpend:s.vpend,vencNF:s.vencNF,otp:s.np+s.fp?100*s.np/(s.np+s.fp):null,cte:s.cte,colSem:s.colSem};
+ let cancelled=valid.filter(isCanceled).length;
+ let collected=Math.min(s.nfc,Math.max(0,valid.length-cancelled));
+ let pending=Math.max(0,valid.length-collected-cancelled);
+ return {collectedNfs:collected,pendingNfs:pending,cancelledNfs:cancelled,totalNfs:valid.length,
+  vp:s.vp,vc:s.vc,collectedPct:s.vp?100*s.vc/s.vp:0,vpend:s.vpend,vencNF:s.vencNF,
+  otp:s.np+s.fp?100*s.np/(s.np+s.fp):null,cte:s.cte,colSem:s.colSem};
 }
 function semCreationGroups(){
  let groups=new Map();
